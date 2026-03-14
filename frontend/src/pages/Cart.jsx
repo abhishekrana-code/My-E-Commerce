@@ -6,7 +6,9 @@ import { AuthContext } from '../context/AuthContext';
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useContext(AuthContext);
+  const [location, setLocation] = useState({ lat: null, lng: null, address: '' });
+  const [locationLoading, setLocationLoading] = useState(false);
+  const { user, refreshCartCount } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const fetchCart = async () => {
@@ -33,9 +35,11 @@ const Cart = () => {
   }, [user]);
 
   const handleUpdateQuantity = async (id, newQuantity) => {
+    if (newQuantity < 1) return;
     try {
       await api.put(`/cart/${id}`, { quantity: newQuantity });
-      fetchCart();
+      await fetchCart();
+      await refreshCartCount();
     } catch (err) {
       alert('Failed to update quantity');
     }
@@ -44,15 +48,49 @@ const Cart = () => {
   const handleRemove = async (id) => {
     try {
       await api.delete(`/cart/${id}`);
-      fetchCart();
+      await fetchCart();
+      await refreshCartCount();
     } catch (err) {
       alert('Failed to remove item');
     }
   };
 
+  const handleFetchLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser');
+      return;
+    }
+
+    setLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setLocation({ ...location, lat: latitude, lng: longitude });
+        setLocationLoading(false);
+        // In a real app, you'd use reverse geocoding here to get the address string from lat/lng
+        // For now we just store the coordinates and allow manual address entry
+      },
+      (err) => {
+        console.error(err);
+        alert('Unable to retrieve your location. Please check permissions.');
+        setLocationLoading(false);
+      }
+    );
+  };
+
   const handlePlaceOrder = async () => {
+    if (!location.lat || !location.lng || !location.address) {
+      alert('Please provide your location and delivery address');
+      return;
+    }
+
     try {
-      await api.post('/orders/');
+      await api.post('/orders/', {
+        latitude: location.lat,
+        longitude: location.lng,
+        address: location.address
+      });
+      await refreshCartCount();
       alert('Order placed successfully!');
       navigate('/');
     } catch (err) {
@@ -89,6 +127,28 @@ const Cart = () => {
                 <button onClick={() => handleRemove(item.id)} className="remove-btn">Remove</button>
               </div>
             ))}
+            
+            <div className="location-section">
+              <h3>Delivery Details</h3>
+              <div className="location-picker">
+                <button 
+                  onClick={handleFetchLocation} 
+                  className="location-btn"
+                  disabled={locationLoading}
+                >
+                  {locationLoading ? 'Fetching...' : 'Get My Live Location'}
+                </button>
+                {location.lat && (
+                  <p className="location-status success">Location Captured! ({location.lat.toFixed(4)}, {location.lng.toFixed(4)})</p>
+                )}
+              </div>
+              <textarea
+                placeholder="Enter full delivery address"
+                value={location.address}
+                onChange={(e) => setLocation({ ...location, address: e.target.value })}
+                className="address-input"
+              />
+            </div>
           </div>
           <div className="cart-summary">
             <h3>Order Summary</h3>

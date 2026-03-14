@@ -9,8 +9,8 @@ orders_bp = Blueprint('orders', __name__)
 @orders_bp.route('/', methods=['POST'])
 @jwt_required()
 def place_order():
-    user_identity = get_jwt_identity()
-    user_id = user_identity['id']
+    user_id = int(get_jwt_identity())
+    data = request.get_json() or {}
     
     # Get user's cart items
     cart_items = CartItem.query.filter_by(user_id=user_id).all()
@@ -37,10 +37,13 @@ def place_order():
         )
         order_items_to_create.append(order_item)
         
-    # Create the order
+    # Create the order with location data
     new_order = Order(
         user_id=user_id,
         total_amount=total_amount,
+        latitude=data.get('latitude'),
+        longitude=data.get('longitude'),
+        address=data.get('address'),
         items=order_items_to_create
     )
     
@@ -56,8 +59,7 @@ def place_order():
 @orders_bp.route('/', methods=['GET'])
 @jwt_required()
 def get_user_orders():
-    user_identity = get_jwt_identity()
-    user_id = user_identity['id']
+    user_id = int(get_jwt_identity())
     
     orders = Order.query.filter_by(user_id=user_id).order_by(Order.created_at.desc()).all()
     return jsonify([order.to_dict() for order in orders]), 200
@@ -65,8 +67,9 @@ def get_user_orders():
 @orders_bp.route('/admin/all', methods=['GET'])
 @jwt_required()
 def get_all_orders():
-    user_identity = get_jwt_identity()
-    if user_identity['role'] != 'admin':
+    user_id = int(get_jwt_identity())
+    current_user = User.query.get(user_id)
+    if not current_user or current_user.role != 'admin':
         return jsonify({'message': 'Admin access required'}), 403
         
     orders = Order.query.order_by(Order.created_at.desc()).all()
@@ -75,8 +78,9 @@ def get_all_orders():
 @orders_bp.route('/admin/<int:id>/status', methods=['PUT'])
 @jwt_required()
 def update_order_status(id):
-    user_identity = get_jwt_identity()
-    if user_identity['role'] != 'admin':
+    user_id = int(get_jwt_identity())
+    current_user = User.query.get(user_id)
+    if not current_user or current_user.role != 'admin':
         return jsonify({'message': 'Admin access required'}), 403
         
     order = Order.query.get_or_404(id)

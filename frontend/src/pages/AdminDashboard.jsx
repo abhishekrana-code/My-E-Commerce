@@ -130,14 +130,37 @@ const AdminDashboard = () => {
             <h3>All Customer Orders</h3>
             <table className="admin-table">
               <thead>
-                <tr><th>Order ID</th><th>Customer ID</th><th>Total</th><th>Status</th><th>Update Status</th></tr>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer ID</th>
+                  <th>Total</th>
+                  <th>Delivery Address</th>
+                  <th>Map</th>
+                  <th>Status</th>
+                  <th>Update Status</th>
+                </tr>
               </thead>
               <tbody>
                 {orders.map(o => (
                   <tr key={o.id}>
                     <td>{o.id}</td>
                     <td>{o.user_id}</td>
-                    <td>${o.total_amount}</td>
+                    <td>${o.total_amount.toFixed(2)}</td>
+                    <td><div className="address-cell">{o.address}</div></td>
+                    <td>
+                      {o.latitude && o.longitude ? (
+                        <a 
+                          href={`https://www.google.com/maps?q=${o.latitude},${o.longitude}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="map-link"
+                        >
+                          View on Map
+                        </a>
+                      ) : (
+                        <span className="no-location">No GPS data</span>
+                      )}
+                    </td>
                     <td><span className={`status-badge ${o.status}`}>{o.status}</span></td>
                     <td>
                       <select value={o.status} onChange={(e) => handleUpdateOrderStatus(o.id, e.target.value)}>

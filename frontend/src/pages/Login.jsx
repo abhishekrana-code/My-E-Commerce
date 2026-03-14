@@ -22,7 +22,7 @@ const Login = () => {
   return (
     <div className="login-container">
       <h2>Login</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <div className="error-msg">{error}</div>}
       <form onSubmit={handleSubmit}>
         <input 
           type="email" 

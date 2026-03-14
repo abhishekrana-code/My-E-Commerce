@@ -28,8 +28,9 @@ def get_product(id):
 @products_bp.route('/', methods=['POST'])
 @jwt_required()
 def add_product():
-    user_identity = get_jwt_identity()
-    if user_identity['role'] != 'admin':
+    user_id = int(get_jwt_identity())
+    current_user = User.query.get(user_id)
+    if not current_user or current_user.role != 'admin':
         return jsonify({'message': 'Admin access required'}), 403
         
     data = request.get_json()
@@ -50,8 +51,9 @@ def add_product():
 @products_bp.route('/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_product(id):
-    user_identity = get_jwt_identity()
-    if user_identity['role'] != 'admin':
+    user_id = int(get_jwt_identity())
+    current_user = User.query.get(user_id)
+    if not current_user or current_user.role != 'admin':
         return jsonify({'message': 'Admin access required'}), 403
         
     product = Product.query.get_or_404(id)
@@ -70,8 +72,9 @@ def update_product(id):
 @products_bp.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_product(id):
-    user_identity = get_jwt_identity()
-    if user_identity['role'] != 'admin':
+    user_id = int(get_jwt_identity())
+    current_user = User.query.get(user_id)
+    if not current_user or current_user.role != 'admin':
         return jsonify({'message': 'Admin access required'}), 403
         
     product = Product.query.get_or_404(id)

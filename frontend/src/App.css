@@ -47,9 +47,31 @@ body {
   color: #3498db;
 }
 
+.cart-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cart-badge {
+  background-color: #e74c3c;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  position: absolute;
+  top: -8px;
+  right: -12px;
+  min-width: 14px;
+  text-align: center;
+}
+
 .welcome-msg {
-  color: #bdc3c7;
-  font-size: 0.9rem;
+  color: #ecf0f1;
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
 .logout-btn {
@@ -71,6 +93,87 @@ body {
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 1rem;
+  flex-grow: 1;
+  justify-content: flex-end;
+  max-width: 600px;
+}
+
+.search-input {
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  flex-grow: 1;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.search-input:focus {
+  border-color: #3498db;
+}
+
+.category-select {
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  background-color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.product-category-tag {
+  font-size: 0.75rem;
+  background: #e2e8f0;
+  color: #475569;
+  padding: 4px 10px;
+  border-radius: 12px;
+  width: fit-content;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: bold;
+}
+
+.no-results {
+  grid-column: 1 / -1;
+  padding: 4rem;
+  font-size: 1.25rem;
+  color: #4b5563;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.loading {
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.error-msg {
+  color: #e74c3c;
+  background-color: #fdf2f2;
+  padding: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #facfcf;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
 }
 
 .product-grid {
@@ -321,12 +424,17 @@ body {
   background: none;
   border: none;
   font-size: 1.1rem;
-  font-weight: 500;
-  color: #7f8c8d;
+  font-weight: 600;
+  color: #64748b;
+  transition: color 0.3s;
+}
+
+.admin-tabs button:hover {
+  color: #3498db;
 }
 
 .admin-tabs button.active {
-  color: #3498db;
+  color: #2980b9;
   border-bottom: 3px solid #3498db;
 }
 
@@ -390,3 +498,91 @@ body {
 .status-badge.pending { background: #ffeaa7; color: #d63031; }
 .status-badge.shipped { background: #81ecec; color: #0984e3; }
 .status-badge.delivered { background: #55efc4; color: #00b894; }
+
+/* Location Feature Styles */
+.location-section {
+  background: #f8fafc;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-top: 1.5rem;
+  border: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.location-picker {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.location-btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.location-btn:hover:not(:disabled) {
+  background-color: #2980b9;
+}
+
+.location-btn:disabled {
+  background-color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.location-status {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.location-status.success {
+  color: #10b981;
+}
+
+.address-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  min-height: 80px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: vertical;
+}
+
+.map-link {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 0.9rem;
+  padding: 4px 8px;
+  border: 1px solid #3498db;
+  border-radius: 4px;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.map-link:hover {
+  background-color: #3498db;
+  color: white;
+}
+
+.address-cell {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.85rem;
+}
+
+.no-location {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-style: italic;
+}

@@ -31,7 +31,8 @@ def login():
     user = User.query.filter_by(email=data['email']).first()
     
     if user and bcrypt.check_password_hash(user.password_hash, data['password']):
-        access_token = create_access_token(identity={'id': user.id, 'role': user.role})
+        # Use a string identity (user id) for better stability
+        access_token = create_access_token(identity=str(user.id))
         return jsonify({
             'token': access_token,
             'user': user.to_dict()
@@ -42,8 +43,10 @@ def login():
 @auth_bp.route('/users', methods=['GET'])
 @jwt_required()
 def get_all_users():
-    user_identity = get_jwt_identity()
-    if user_identity['role'] != 'admin':
+    user_id = get_jwt_identity()
+    current_user = User.query.get(int(user_id))
+    
+    if not current_user or current_user.role != 'admin':
         return jsonify({'message': 'Admin access required'}), 403
         
     users = User.query.all()

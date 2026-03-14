@@ -5,7 +5,19 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [cartCount, setCartCount] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  const fetchCartCount = async () => {
+    try {
+      const response = await api.get('/cart/');
+      const count = response.data.reduce((acc, item) => acc + item.quantity, 0);
+      setCartCount(count);
+    } catch (err) {
+      console.error('Failed to fetch cart count:', err);
+      setCartCount(0);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -13,6 +25,7 @@ export const AuthProvider = ({ children }) => {
     
     if (token && storedUser) {
       setUser(JSON.parse(storedUser));
+      fetchCartCount();
     }
     setLoading(false);
   }, []);
@@ -24,6 +37,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
+    await fetchCartCount();
     return userData;
   };
 
@@ -31,6 +45,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
+    setCartCount(0);
   };
 
   const register = async (username, email, password) => {
@@ -38,7 +53,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, register, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, register, loading, cartCount, refreshCartCount: fetchCartCount }}>
       {!loading && children}
     </AuthContext.Provider>
   );

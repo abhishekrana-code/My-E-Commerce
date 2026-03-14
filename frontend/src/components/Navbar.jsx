@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const Navbar = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, cartCount } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -20,7 +20,10 @@ const Navbar = () => {
         <Link to="/">Home</Link>
         {user ? (
           <>
-            <Link to="/cart">Cart</Link>
+            <Link to="/cart" className="cart-link">
+              Cart
+              {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+            </Link>
             {user.role === 'admin' && <Link to="/admin">Admin</Link>}
             <span className="welcome-msg">Hi, {user.username}</span>
             <button onClick={handleLogout} className="logout-btn">Logout</button>

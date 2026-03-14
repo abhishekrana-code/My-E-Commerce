@@ -7,7 +7,7 @@ const ProductDetail = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { user } = useContext(AuthContext);
+  const { user, refreshCartCount } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,17 +25,17 @@ const ProductDetail = () => {
   }, [id]);
 
   const handleAddToCart = async () => {
-    const token = localStorage.getItem('token');
-    if (!user || !token) {
+    if (!user) {
       navigate('/login');
       return;
     }
     try {
       await api.post('/cart/', { product_id: product.id, quantity: 1 });
-      alert('Product added to cart!');
+      await refreshCartCount();
+      alert(`${product.name} added to cart!`);
     } catch (err) {
       console.error('Add to cart error:', err);
-      const errorMessage = err.response?.data?.message || err.response?.data?.msg || 'Failed to add product to cart. Please check if you are logged in.';
+      const errorMessage = err.response?.data?.message || err.response?.data?.msg || 'Failed to add product to cart.';
       alert(errorMessage);
     }
   };

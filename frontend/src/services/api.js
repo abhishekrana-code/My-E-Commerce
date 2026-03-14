@@ -7,11 +7,20 @@ const api = axios.create({
 // Request interceptor to add token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
-  // Only add header if token exists and is not the string "undefined"
-  if (token && token !== 'undefined' && token !== 'null') {
-    config.headers.Authorization = `Bearer ${token}`;
+  
+  if (token) {
+    // Clean token: remove all quotes and trim whitespace
+    const cleanToken = token.replace(/["]/g, '').trim();
+    
+    // Only add header if token is not a "null"/"undefined" string and not empty
+    if (cleanToken && cleanToken !== 'null' && cleanToken !== 'undefined') {
+      config.headers['Authorization'] = `Bearer ${cleanToken}`;
+    }
   }
+  
   return config;
+}, (error) => {
+  return Promise.reject(error);
 });
 
 // Response interceptor to handle expired tokens

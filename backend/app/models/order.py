@@ -8,6 +8,9 @@ class Order(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     total_amount = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(20), default='pending') # 'pending', 'shipped', 'delivered'
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
+    address = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     items = db.relationship('OrderItem', backref='order', lazy=True)
@@ -18,6 +21,9 @@ class Order(db.Model):
             'user_id': self.user_id,
             'total_amount': self.total_amount,
             'status': self.status,
+            'latitude': self.latitude,
+            'longitude': self.longitude,
+            'address': self.address,
             'created_at': self.created_at.isoformat(),
             'items': [item.to_dict() for item in self.items]
         }
