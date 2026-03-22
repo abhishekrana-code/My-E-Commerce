@@ -112,7 +112,7 @@ const AdminDashboard = () => {
                   <tr key={p.id}>
                     <td>{p.id}</td>
                     <td>{p.name}</td>
-                    <td>${p.price}</td>
+                    <td>₹{p.price}</td>
                     <td>{p.stock}</td>
                     <td>
                       <button onClick={() => {setEditingProduct(p); setFormData(p); setShowProductForm(true);}}>Edit</button>

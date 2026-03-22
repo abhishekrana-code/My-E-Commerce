@@ -54,25 +54,38 @@ const Cart = () => {
       alert('Failed to remove item');
     }
   };
-
+  const getAddressFromCoords = async (lat, lng) => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+      );
+      const data = await res.json();
+      return data.display_name || '';
+    } catch (err) {
+      console.error('Error fetching address:', err);
+      return '';
+    }
+  };
   const handleFetchLocation = () => {
     if (!navigator.geolocation) {
       alert('Geolocation is not supported by your browser');
       return;
     }
-
     setLocationLoading(true);
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const { latitude, longitude } = position.coords;
-        setLocation({ ...location, lat: latitude, lng: longitude });
+        const address = await getAddressFromCoords(latitude, longitude);
+        setLocation({
+          lat: latitude,
+          lng: longitude,
+          address: address || location.address
+        });
         setLocationLoading(false);
-        // In a real app, you'd use reverse geocoding here to get the address string from lat/lng
-        // For now we just store the coordinates and allow manual address entry
       },
       (err) => {
         console.error(err);
-        alert('Unable to retrieve your location. Please check permissions.');
+        alert('Unable to retrieve location');
         setLocationLoading(false);
       }
     );
