@@ -10,11 +10,14 @@ def create_app(config_class=Config):
     db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
+    
+    # Configure CORS to be more permissive for local development
     cors.init_app(app, resources={r"/api/*": {
-        "origins": "*",
-        "allow_headers": ["*"],
+        "origins": ["http://localhost:5173", "http://127.0.0.1:5173"],
+        "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Origin"],
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "expose_headers": ["Authorization"]
+        "expose_headers": ["Authorization"],
+        "supports_credentials": True
     }})
 
     # Register blueprints

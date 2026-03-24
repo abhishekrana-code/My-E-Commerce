@@ -72,6 +72,26 @@ const AdminDashboard = () => {
     fetchData();
   };
 
+  const handleToggleUserStatus = async (userId, currentStatus) => {
+    try {
+      await api.put(`/auth/users/${userId}/status`, { is_active: !currentStatus });
+      fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || "Action failed");
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    if (window.confirm("Are you sure you want to permanently delete this user? This cannot be undone.")) {
+      try {
+        await api.delete(`/auth/users/${userId}`);
+        fetchData();
+      } catch (err) {
+        alert(err.response?.data?.message || "Action failed");
+      }
+    }
+  };
+
   return (
     <div className="home-container">
       <h2>Admin Dashboard</h2>
@@ -181,7 +201,7 @@ const AdminDashboard = () => {
             <h3>Registered Users</h3>
             <table className="admin-table">
               <thead>
-                <tr><th>ID</th><th>Username</th><th>Email</th><th>Role</th></tr>
+                <tr><th>ID</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr>
               </thead>
               <tbody>
                 {users.map(u => (
@@ -190,6 +210,30 @@ const AdminDashboard = () => {
                     <td>{u.username}</td>
                     <td>{u.email}</td>
                     <td>{u.role}</td>
+                    <td>
+                      <span className={`status-badge ${u.is_active ? 'delivered' : 'pending'}`}>
+                        {u.is_active ? 'Active' : 'Banned'}
+                      </span>
+                    </td>
+                    <td>
+                      {u.role !== 'admin' && (
+                        <>
+                          <button 
+                            className={u.is_active ? 'remove-btn' : 'add-btn'} 
+                            onClick={() => handleToggleUserStatus(u.id, u.is_active)}
+                            style={{ marginRight: '10px', minWidth: '80px' }}
+                          >
+                            {u.is_active ? 'Ban' : 'Unban'}
+                          </button>
+                          <button 
+                            className="remove-btn" 
+                            onClick={() => handleDeleteUser(u.id)}
+                          >
+                            Delete
+                          </button>
+                        </>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

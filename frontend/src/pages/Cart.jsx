@@ -92,8 +92,8 @@ const Cart = () => {
   };
 
   const handlePlaceOrder = async () => {
-    if (!location.lat || !location.lng || !location.address) {
-      alert('Please provide your location and delivery address');
+    if (!location.address) {
+      alert('Please provide your delivery address');
       return;
     }
 

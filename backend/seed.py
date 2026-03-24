@@ -6,8 +6,15 @@ from app.models.product import Product
 def seed_database():
     app = create_app()
     with app.app_context():
+        print("Connecting to database...")
+        print("Dropping old tables (forcing)...")
+        db.session.execute(db.text('SET FOREIGN_KEY_CHECKS = 0;'))
+        db.drop_all()
+        db.session.execute(db.text('SET FOREIGN_KEY_CHECKS = 1;'))
+        db.session.commit()
+        
         # 1. Create Tables
-        print("Creating database tables...")
+        print("Creating fresh database tables with new columns...")
         db.create_all()
 
         # 2. Create Demo Admin

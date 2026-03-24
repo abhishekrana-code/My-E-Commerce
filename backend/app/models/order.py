@@ -1,5 +1,6 @@
 from app.extensions import db
 from datetime import datetime
+from app.models.product import Product
 
 class Order(db.Model):
     __tablename__ = 'orders'
@@ -10,7 +11,7 @@ class Order(db.Model):
     status = db.Column(db.String(20), default='pending') # 'pending', 'shipped', 'delivered'
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
-    address = db.Column(db.String(255))
+    address = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     items = db.relationship('OrderItem', backref='order', lazy=True)
@@ -24,7 +25,7 @@ class Order(db.Model):
             'latitude': self.latitude,
             'longitude': self.longitude,
             'address': self.address,
-            'created_at': self.created_at.isoformat(),
+            'created_at': self.created_at.isoformat() if self.created_at else None,
             'items': [item.to_dict() for item in self.items]
         }
 

@@ -91,7 +91,7 @@ const Home = () => {
               <div className="product-info">
                 <span className="product-category-tag">{product.category}</span>
                 <h3>{product.name}</h3>
-                <p className="price">${product.price.toFixed(2)}</p>
+                <p className="price">Rs. {product.price}</p>
                 <div className="btn-group">
                   <Link to={`/product/${product.id}`} className="view-btn">View Details</Link>
                   <button 

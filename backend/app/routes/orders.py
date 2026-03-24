@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from app.models.user import User
 from app.models.product import Product, CartItem
 from app.models.order import Order, OrderItem
 from app.extensions import db
@@ -9,52 +10,75 @@ orders_bp = Blueprint('orders', __name__)
 @orders_bp.route('/', methods=['POST'])
 @jwt_required()
 def place_order():
-    user_id = int(get_jwt_identity())
-    data = request.get_json() or {}
-    
-    # Get user's cart items
-    cart_items = CartItem.query.filter_by(user_id=user_id).all()
-    if not cart_items:
-        return jsonify({'message': 'Cart is empty'}), 400
+    try:
+        user_id = int(get_jwt_identity())
+        data = request.get_json() or {}
         
-    total_amount = 0
-    order_items_to_create = []
-    
-    # Create order items and update product stock
-    for item in cart_items:
-        if item.product.stock < item.quantity:
-            return jsonify({'message': f'Insufficient stock for {item.product.name}'}), 400
+        # 1. Fetch Cart Items
+        cart_items = CartItem.query.filter_by(user_id=user_id).all()
+        if not cart_items:
+            return jsonify({'message': 'Cart is empty'}), 400
             
-        total_amount += item.product.price * item.quantity
+        total_amount = 0.0
         
-        # Deduct stock
-        item.product.stock -= item.quantity
+        # 2. Create Order Object
+        # Cast location to float only if they exist, otherwise use None
+        lat = data.get('latitude')
+        lng = data.get('longitude')
         
-        order_item = OrderItem(
-            product_id=item.product_id,
-            quantity=item.quantity,
-            price_at_time=item.product.price
+        new_order = Order(
+            user_id=user_id,
+            total_amount=0.0, # Will update after calculating
+            latitude=float(lat) if lat is not None else None,
+            longitude=float(lng) if lng is not None else None,
+            address=str(data.get('address', 'No address provided'))[:500]
         )
-        order_items_to_create.append(order_item)
+        db.session.add(new_order)
         
-    # Create the order with location data
-    new_order = Order(
-        user_id=user_id,
-        total_amount=total_amount,
-        latitude=data.get('latitude'),
-        longitude=data.get('longitude'),
-        address=data.get('address'),
-        items=order_items_to_create
-    )
-    
-    db.session.add(new_order)
-    
-    # Clear cart
-    for item in cart_items:
-        db.session.delete(item)
+        # 3. Process Items
+        for item in cart_items:
+            if not item.product:
+                continue
+                
+            if item.product.stock < item.quantity:
+                db.session.rollback()
+                return jsonify({'message': f'Insufficient stock for {item.product.name}'}), 400
+            
+            # Update product stock
+            item.product.stock -= item.quantity
+            item_price = float(item.product.price)
+            total_amount += (item_price * item.quantity)
+            
+            # Create OrderItem
+            order_item = OrderItem(
+                order=new_order,
+                product_id=item.product_id,
+                quantity=item.quantity,
+                price_at_time=item_price
+            )
+            db.session.add(order_item)
+            
+            # Remove from cart
+            db.session.delete(item)
+            
+        new_order.total_amount = total_amount
         
-    db.session.commit()
-    return jsonify(new_order.to_dict()), 201
+        # 4. Commit everything
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Order placed successfully!',
+            'order_id': new_order.id
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        import traceback
+        traceback.print_exc() # This prints the REAL error to your terminal
+        return jsonify({
+            'message': 'Internal Server Error',
+            'error': str(e)
+        }), 500
 
 @orders_bp.route('/', methods=['GET'])
 @jwt_required()

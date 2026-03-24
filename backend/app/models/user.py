@@ -8,10 +8,10 @@ class User(db.Model):
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(10), default='user') # 'user' or 'admin'
+    role = db.Column(db.String(10), default='user') 
+    is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relationships
     orders = db.relationship('Order', backref='customer', lazy=True)
     cart_items = db.relationship('CartItem', backref='user', lazy=True)
 
@@ -21,5 +21,6 @@ class User(db.Model):
             'username': self.username,
             'email': self.email,
             'role': self.role,
+            'is_active': self.is_active,
             'created_at': self.created_at.isoformat()
         }

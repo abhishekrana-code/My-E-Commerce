@@ -20,6 +20,7 @@ const Navbar = () => {
         <Link to="/">Home</Link>
         {user ? (
           <>
+            <Link to="/orders">My Orders</Link>
             <Link to="/cart" className="cart-link">
               Cart
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}

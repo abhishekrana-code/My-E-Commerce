@@ -24,14 +24,19 @@ def add_to_cart():
     
     # Check if product exists and has stock
     product = Product.query.get_or_404(product_id)
-    if product.stock < quantity:
-        return jsonify({'message': 'Insufficient stock'}), 400
-        
+    
     # Check if item already in cart
     cart_item = CartItem.query.filter_by(user_id=int(user_id), product_id=product_id).first()
     
+    requested_total = quantity
     if cart_item:
-        cart_item.quantity += quantity
+        requested_total += cart_item.quantity
+        
+    if product.stock < requested_total:
+        return jsonify({'message': f'Only {product.stock} items available in stock'}), 400
+    
+    if cart_item:
+        cart_item.quantity = requested_total
     else:
         cart_item = CartItem(user_id=int(user_id), product_id=product_id, quantity=quantity)
         db.session.add(cart_item)
@@ -54,6 +59,9 @@ def update_cart_quantity(id):
     if new_quantity <= 0:
         db.session.delete(cart_item)
     else:
+        # Check stock for the new total quantity
+        if cart_item.product.stock < new_quantity:
+            return jsonify({'message': f'Only {cart_item.product.stock} items available in stock'}), 400
         cart_item.quantity = new_quantity
         
     db.session.commit()
