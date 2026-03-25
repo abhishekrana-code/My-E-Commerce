@@ -27,8 +27,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && (error.response.status === 401 || error.response.status === 422)) {
-      // If unauthorized, clear storage and redirect to login
+    if (error.response && (error.response.status === 401 || error.response.status === 422 || error.response.status === 403)) {
+      // If unauthorized or forbidden (banned), clear storage and redirect to login
       const msg = error.response.data?.message || error.response.data?.msg || 'Session expired or invalid. Please login again.';
       alert(msg);
       localStorage.removeItem('token');
