@@ -22,15 +22,19 @@ def place_order():
         total_amount = 0.0
         
         # 2. Create Order Object
-        # Cast location to float only if they exist, otherwise use None
+        # Cast location to float only if they exist and are not empty, otherwise use None
         lat = data.get('latitude')
         lng = data.get('longitude')
+        
+        # Check if they are not None and not empty strings
+        safe_lat = float(lat) if lat is not None and lat != '' else None
+        safe_lng = float(lng) if lng is not None and lng != '' else None
         
         new_order = Order(
             user_id=user_id,
             total_amount=0.0, # Will update after calculating
-            latitude=float(lat) if lat is not None else None,
-            longitude=float(lng) if lng is not None else None,
+            latitude=float(lat),
+            longitude=float(lng),
             address=str(data.get('address', 'No address provided'))[:500]
         )
         db.session.add(new_order)

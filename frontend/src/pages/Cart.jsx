@@ -130,7 +130,7 @@ const Cart = () => {
                 <img src={item.product.image_url} alt={item.product.name} className="cart-item-img" />
                 <div className="cart-item-info">
                   <h3>{item.product.name}</h3>
-                  <p className="price">${item.product.price.toFixed(2)}</p>
+                  <p className="price">Rs.{item.product.price.toFixed(2)}</p>
                   <div className="quantity-controls">
                     <button onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}>-</button>
                     <span>{item.quantity}</span>
@@ -166,7 +166,7 @@ const Cart = () => {
           <div className="cart-summary">
             <h3>Order Summary</h3>
             <p>Total Items: {cartItems.length}</p>
-            <p className="total-price">Total: ${calculateTotal().toFixed(2)}</p>
+            <p className="total-price">Total: Rs.{calculateTotal()}</p>
             <button onClick={handlePlaceOrder} className="checkout-btn">Place Order</button>
           </div>
         </div>
